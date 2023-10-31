@@ -229,13 +229,13 @@ public class TimedQuiz implements ActionListener {
             resultSet = statement.executeQuery();
 
             int questionCount = 0;
-            while (resultSet.next() && questionCount < 18) {
+            while (resultSet.next() && questionCount <= 18) {
                 questions[questionCount] = resultSet.getString("question_text");
                 options[questionCount][0] = resultSet.getString("option_a");
                 options[questionCount][1] = resultSet.getString("option_b");
                 options[questionCount][2] = resultSet.getString("option_c");
                 options[questionCount][3] = resultSet.getString("option_d");
-                answers[questionCount] = resultSet.getString("correct_option").charAt(0);
+                answers[questionCount] = resultSet.getString("correct_option").charAt(1);
 
                 questionCount++;
             }
@@ -245,7 +245,7 @@ public class TimedQuiz implements ActionListener {
     }
 
     private void nextQuestion() {
-        if (currentQuestionIndex > total_questions) {
+        if (currentQuestionIndex >= total_questions) {
             results();
         } else {
             int currentQuestionID = questionOrder[currentQuestionIndex];
@@ -265,27 +265,24 @@ public class TimedQuiz implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == buttonA) {
-            guess = 'A';
-        } else if (e.getSource() == buttonB) {
-            guess = 'B';
-        } else if (e.getSource() == buttonC) {
-            guess = 'C';
-        } else if (e.getSource() == buttonD) {
-            guess = 'D';
-        }
+        if (index < answers.length) {
 
-        int currentQuestionID = questionOrder[currentQuestionIndex];
+            JButton selectedButton = (JButton) e.getSource();
+            char buttonText = selectedButton.getText().charAt(0);
 
-        if (guess == answers[currentQuestionID]) {
-            correct_answers++;
-        }
+            // System.out.println(buttonText + " and correct ans: " + Character.toUpperCase((answers[index]))); Debugging check
+
+            if (buttonText == Character.toUpperCase((answers[index]))) {
+                correct_answers++;
+                //  System.out.println("incremented");    Debugging
+            }
 
 
-        if (currentQuestionIndex > total_questions) {
-            results();
-        } else {
-            displayAnswer();
+            if (currentQuestionIndex > total_questions) {
+                results();
+            } else {
+                displayAnswer();
+            }
         }
     }
 
@@ -301,16 +298,17 @@ public class TimedQuiz implements ActionListener {
         buttonC.setEnabled(false);
         buttonD.setEnabled(false);
 
-        if (answers[index] != 'A')
+        if (answers[index] != 'a')
             answer_labelA.setForeground(new Color(255, 0, 0));
-        if (answers[index] != 'B')
+        if (answers[index] != 'b')
             answer_labelB.setForeground(new Color(255, 0, 0));
 
-        if (answers[index] != 'C')
+        if (answers[index] != 'c')
             answer_labelC.setForeground(new Color(255, 0, 0));
 
-        if (answers[index] != 'D')
+        if (answers[index] != 'd')
             answer_labelD.setForeground(new Color(255, 0, 0));
+        //The answer label is set to red if the answer is incorrect
 
         Timer pause = new Timer(1000, new ActionListener() {    //Sets 2 second timer
             @Override
@@ -333,6 +331,7 @@ public class TimedQuiz implements ActionListener {
         });
         pause.setRepeats(false);
         pause.start();
+
     }
 
 

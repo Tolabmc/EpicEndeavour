@@ -18,7 +18,7 @@ public class RandomQuiz implements ActionListener {
     private char answer;
     private int index;
     private int correct_answers = 0;
-    private int total_questions;
+    private int total_questions = 18;
     private int result;
     private int seconds = 10;
 
@@ -193,6 +193,10 @@ public class RandomQuiz implements ActionListener {
             int temp = questionOrder[i];
             questionOrder[i] = questionOrder[j];
             questionOrder[j] = temp;
+
+            char tempChar = answers[i];
+            answers[i] = answers[j];
+            answers[j] = tempChar;
         }
     }
 
@@ -212,7 +216,7 @@ public class RandomQuiz implements ActionListener {
                 options[questionCount][1] = resultSet.getString("option_b");
                 options[questionCount][2] = resultSet.getString("option_c");
                 options[questionCount][3] = resultSet.getString("option_d");
-                answers[questionCount] = resultSet.getString("correct_option").charAt(0);
+                answers[questionCount] = resultSet.getString("correct_option").charAt(1);
 
                 questionCount++;
             }
@@ -241,37 +245,56 @@ public class RandomQuiz implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == buttonA) {
-            answer = 'A';
-            if (answer == answers[index]) {
+        if(index < answers.length) {
+
+            JButton selectedButton = (JButton) e.getSource();
+            char buttonText = selectedButton.getText().charAt(0);
+
+           // System.out.println(buttonText + " and correct ans: " + Character.toUpperCase((answers[index]))); Debugging check
+
+            if(buttonText == Character.toUpperCase((answers[index]))){
                 correct_answers++;
+              //  System.out.println("incremented");    Debugging
             }
+
+//            if (e.getSource() == buttonA) {
+//                answer = 'A';
+//                if (Character.toUpperCase(answer) == Character.toUpperCase((answers[index])) ) {
+//
+//                    correct_answers++;
+//                }
+//            }
+//            if (e.getSource() == buttonB) {
+//                answer = 'B';
+//                if (Character.toUpperCase(answer) == Character.toUpperCase((answers[index]))) {
+//
+//                    correct_answers++;
+//                }
+//            }
+//            if (e.getSource() == buttonC) {
+//                answer = 'C';
+//                if (Character.toUpperCase(answer) == Character.toUpperCase((answers[index]))) {
+//
+//                    correct_answers++;
+//                }
+//            }
+//            if (e.getSource() == buttonD) {
+//                answer = 'D';
+//                if (Character.toUpperCase(answer) == Character.toUpperCase((answers[index]))) {
+//
+//                    correct_answers++;
+//                }
+//            }
+            index++;
+            nextQuestion();
         }
-        if (e.getSource() == buttonB) {
-            answer = 'B';
-            if (answer == answers[index]) {
-                correct_answers++;
-            }
-        }
-        if (e.getSource() == buttonC) {
-            answer = 'C';
-            if (answer == answers[index]) {
-                correct_answers++;
-            }
-        }
-        if (e.getSource() == buttonD) {
-            answer = 'D';
-            if (answer == answers[index]) {
-                correct_answers++;
-            }
-        }
-        index++;
-        nextQuestion();
     }
 
 
 
+
     private void results() {
+        System.out.println("correct answers: " + correct_answers);
         result = (int) ((correct_answers / (double) total_questions) * 100);
         textfield.setText("Result!");
         textarea.setText("");
