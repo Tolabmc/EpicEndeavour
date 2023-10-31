@@ -50,7 +50,7 @@ public class TimedQuiz implements ActionListener {
 
     Timer timer = new Timer(1000, new ActionListener() {    //Sets 1 second timer
         @Override
-        public void actionPerformed(ActionEvent e) { //After every second elapses the action is performed
+        public void actionPerformed(ActionEvent e) { //After every second elapses the action is performe
             seconds--;
             seconds_left.setText(String.valueOf(seconds));
             if (seconds <= 0) {

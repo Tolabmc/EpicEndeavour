@@ -44,7 +44,7 @@ public class RandomQuiz implements ActionListener {
     private PreparedStatement statement;
     private ResultSet resultSet;
 
-    private int[] questionOrder;  // Store the order of questions
+    private int[] questionOrder;  // Store the order of question
     private int currentQuestionIndex;  // Keep track of the current question index
 
     public RandomQuiz() {
