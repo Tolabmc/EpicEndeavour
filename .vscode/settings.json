@@ -1,8 +1,0 @@
-{
-    "java.project.referencedLibraries": [
-        "lib/**/*.jar",
-        "/Users/tolabowenmaccurtain/Downloads/sqlite-jdbc 3.43.2.1.jar",
-        "/Users/tolabowenmaccurtain/Downloads/sqlite-jdbc javadoc.jar",
-        "/Users/tolabowenmaccurtain/Downloads/sqlite-jdbc sources.jar"
-    ]
-}
