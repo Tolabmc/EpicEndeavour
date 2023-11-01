@@ -20,7 +20,7 @@ public class TimedQuiz implements ActionListener {
     int correct_answers = 0;
     private int total_questions;
     private int result;
-    int seconds = 10;
+    int seconds = 30;
 
     private char[] userAnswers;
 
