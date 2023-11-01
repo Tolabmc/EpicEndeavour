@@ -1,49 +1,27 @@
-package DifficultyQuiz;
+package src;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-
+import javax.swing.Timer;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class CompSci implements ActionListener {
+public class TimedQuiz implements ActionListener {
 
-    String[] questions ={
-            "In Backus-Naur Form (BNF), what does the '|' symbol represent?",
-            "What is the purpose of Backus-Naur Form (BNF) in computer science?",
-            "Which of the following statements is true regarding semantic and syntactic equivalence in programming languages?",
-            "In computer science, when are two mathematical equations considered semantically equivalent?",
-            "In lattice theory, what is the infimum (infima) and supremum (suprema) of two elements a and b in a lattice?",
-            "In Binary Decision Diagrams (BDDs), what is the primary purpose of variable reordering?"
-            };
-    String[][] options ={
-            {"Alternation", "Concatenation", "Repetition", "Addition"},
-            {"To describe the meaning of programming language keywords", "To specify the layout and design of a user interface", "To optimize the execution speed of computer programs", "To formally define the syntax of programming languages"},
-            {"Semantic equivalence ensures that two programs have the same runtime behaviour", "Syntactic equivalence is concerned with the arrangement of code elements, while semantic equivalence is about variable naming", "Semantic equivalence can be determined by comparing the program's source code directly", "Syntactic equivalence is concerned with the execution speed of the program, while semantic equivalence is about code comments"},
-            {"When they have the same variables but different constants", "When they produce the same result for all possible input values", "When they have the same structure but different variable names", "When they have the same variables but different operators"},
-            {"The infimum is the greatest lower bound, and the supremum is the least upper bound of a and b", "The infimum is the least lower bound, and the supremum is the greatest upper bound of a and b", "The infimum is the greatest lower bound of a and b, and the supremum is the greatest upper bound of a and b", "The infimum is the least lower bound of a and b, and the supremum is the least upper bound of a and b"},
-            {"To increase the depth of the BDD for better visualization", "To eliminate redundancy in the representation of Boolean functions", "To minimize the number of nodes in the BDD", "To reorder the variables alphabetically for clarity"}
-    };
-    char[] answers ={
-            'A',
-            'D',
-            'A',
-            'B',
-            'A',
-            'C'
-    };
-    private char guess;
+    private String[] questions;
+    private String[][] options;
+    private char[] answers;
+
     private char answer;
     private int index;
     int correct_answers = 0;
     private int total_questions;
     private int result;
-
-    private char[] userAnswers;
+    int seconds = 30;
 
     private JFrame frame;
     private JTextField textfield;
@@ -60,6 +38,10 @@ public class CompSci implements ActionListener {
     private JLabel answer_labelD;
     private JTextField number_right;
     private JTextField percentage;
+    private JLabel time_label = new JLabel();
+    private JLabel seconds_left = new JLabel();
+
+
 
     private Connection connection;
     private PreparedStatement statement;
@@ -68,10 +50,22 @@ public class CompSci implements ActionListener {
     private int[] questionOrder;  // Store the order of questions
     private int currentQuestionIndex;  // Keep track of the current question index
 
+    Timer timer = new Timer(1000, new ActionListener() {    //Sets 1 second timer
+        @Override
+        public void actionPerformed(ActionEvent e) { //After every second elapses the action is performe
+            seconds--;
+            seconds_left.setText(String.valueOf(seconds));
+            if (seconds <= 0) {
+                displayAnswer();
+            }
+        }
+    });
+
+
     private Statistics statistics;
 
-    public CompSci() {
-        frame = new JFrame("Discrete Maths Quiz");
+    public TimedQuiz() {
+        frame = new JFrame("src.TimedQuiz");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(650, 650);
         frame.getContentPane().setBackground(new Color(99, 111, 237));
@@ -94,8 +88,14 @@ public class CompSci implements ActionListener {
         backButton = new JButton();
 
         // Initialize the database connection
+        try {
+            connection = DriverManager.getConnection("jdbc:sqlite:epicdatabase.db");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         // Load questions and answers from the database
+        loadQuestionsFromDatabase();
 
         total_questions = questions.length;
 
@@ -107,7 +107,7 @@ public class CompSci implements ActionListener {
         textfield.setBorder(BorderFactory.createBevelBorder(1));
         textfield.setHorizontalAlignment(JTextField.CENTER);
         textfield.setEditable(false);
-        textfield.setText("Welcome");
+        textfield.setText("src.Welcome");
 
         textarea.setBounds(0, 50, 650, 120);
         textarea.setLineWrap(true);
@@ -163,7 +163,7 @@ public class CompSci implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frame.dispose(); // Close the current quiz frame
-                new Welcome(); // Open the Welcome page
+                new Welcome(); // Open the src.Welcome page
             }
         });
 
@@ -194,6 +194,22 @@ public class CompSci implements ActionListener {
         answer_labelD.setFont(new Font("MV Boli", Font.PLAIN, 10));
         answer_labelD.setText("yes");
 
+        seconds_left.setBounds(535, 510, 100, 100);
+        seconds_left.setBackground(new Color(99, 111, 237));
+        seconds_left.setForeground(new Color(25, 25, 25));
+        seconds_left.setFont(new Font("Impact", Font.BOLD, 60));
+        seconds_left.setBorder(BorderFactory.createBevelBorder(2));
+        seconds_left.setOpaque(true);
+        seconds_left.setHorizontalAlignment(JTextField.CENTER);
+        seconds_left.setText(String.valueOf(seconds));
+
+        time_label.setBounds(535, 475, 100, 25);
+        time_label.setBackground(new Color(99, 111, 237));
+        time_label.setForeground(new Color(25, 25, 25));
+        time_label.setFont(new Font("MV Boli", Font.PLAIN, 20));
+        time_label.setHorizontalAlignment(JTextField.CENTER);
+        time_label.setText("Timer! 😈");
+
         number_right.setBounds(225, 225, 200, 100);
         number_right.setBackground(new Color(99, 111, 237));
         number_right.setForeground(new Color(25, 25, 25));
@@ -210,6 +226,9 @@ public class CompSci implements ActionListener {
         percentage.setHorizontalAlignment(JTextField.CENTER);
         percentage.setEditable(false);
 
+
+        frame.add(time_label);
+        frame.add(seconds_left);
         frame.add(answer_labelA);
         frame.add(answer_labelB);
         frame.add(answer_labelC);
@@ -233,15 +252,34 @@ public class CompSci implements ActionListener {
         nextQuestion();
     }
 
-    private void printStackTrace() {
+
+
+    private void loadQuestionsFromDatabase() {
+        questions = new String[18];
+        options = new String[18][4];
+        answers = new char[18];
+        try {
+            String query = "SELECT question_text, option_a, option_b, option_c, option_d, correct_option FROM MultipleChoiceQandA";
+            statement = connection.prepareStatement(query);
+            resultSet = statement.executeQuery();
+
+            int questionCount = 0;
+            while (resultSet.next() && questionCount <= 18) {
+                questions[questionCount] = resultSet.getString("question_text");
+                options[questionCount][0] = resultSet.getString("option_a");
+                options[questionCount][1] = resultSet.getString("option_b");
+                options[questionCount][2] = resultSet.getString("option_c");
+                options[questionCount][3] = resultSet.getString("option_d");
+                answers[questionCount] = resultSet.getString("correct_option").charAt(1);
+
+                questionCount++;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
-
     private void nextQuestion() {
-        buttonA.setEnabled(true);
-        buttonB.setEnabled(true);
-        buttonC.setEnabled(true);
-        buttonD.setEnabled(true);
         if (currentQuestionIndex >= total_questions) {
             results();
         } else {
@@ -256,41 +294,82 @@ public class CompSci implements ActionListener {
             answer_labelD.setText(options[currentQuestionID][3]);
 
             currentQuestionIndex++;
-
+            timer.start();
         }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        if (index < answers.length) {
+
+            JButton selectedButton = (JButton) e.getSource();
+            char buttonText = selectedButton.getText().charAt(0);
+
+            // System.out.println(buttonText + " and correct ans: " + Character.toUpperCase((answers[index]))); Debugging check
+
+            if (buttonText == Character.toUpperCase((answers[index]))) {
+                correct_answers++;
+                //  System.out.println("incremented");    Debugging
+            }
+
+
+            if (currentQuestionIndex > total_questions) {
+                results();
+            } else {
+                displayAnswer();
+            }
+        }
+    }
+
+
+
+
+
+    public void displayAnswer() {
+
+        timer.stop();
         buttonA.setEnabled(false);
         buttonB.setEnabled(false);
         buttonC.setEnabled(false);
         buttonD.setEnabled(false);
-        if (e.getSource()==buttonA){
-            answer='A';
-            if (answer==answers[index]){
-                correct_answers++;
+
+        if (answers[index] != 'a')
+            answer_labelA.setForeground(new Color(255, 0, 0));
+        if (answers[index] != 'b')
+            answer_labelB.setForeground(new Color(255, 0, 0));
+
+        if (answers[index] != 'c')
+            answer_labelC.setForeground(new Color(255, 0, 0));
+
+        if (answers[index] != 'd')
+            answer_labelD.setForeground(new Color(255, 0, 0));
+        //The answer label is set to red if the answer is incorrect
+
+        Timer pause = new Timer(1000, new ActionListener() {    //Sets 1 second timer
+            @Override
+            public void actionPerformed(ActionEvent e) { //After 1 seconds elapses colours change back to original
+                answer_labelA.setForeground(new Color(151, 255, 255));
+                answer_labelB.setForeground(new Color(151, 255, 255));
+                answer_labelC.setForeground(new Color(151, 255, 255));
+                answer_labelD.setForeground(new Color(151, 255, 255));
+
+                answer = ' ';
+                seconds = 10;
+                seconds_left.setText(String.valueOf(seconds));
+                buttonA.setEnabled(true);
+                buttonB.setEnabled(true);
+                buttonC.setEnabled(true);
+                buttonD.setEnabled(true);
+                index++;
+                nextQuestion();
             }
-        }
-        if (e.getSource()==buttonB){
-            answer='B';
-            if (answer==answers[index]){
-                correct_answers++;
-            }
-        }
-        if (e.getSource()==buttonC){
-            answer='C';
-            if (answer==answers[index]){
-                correct_answers++;
-            }
-        }
-        if (e.getSource()==buttonD){
-            answer='D';
-            if (answer==answers[index]){
-                correct_answers++;
-            }
-        }nextQuestion();
+        });
+        pause.setRepeats(false);
+        pause.start();
+
     }
+
+
 
     private void results() {
         result = (int) ((correct_answers / (double) total_questions) * 100);
@@ -325,6 +404,7 @@ public class CompSci implements ActionListener {
         currentQuestionIndex = 0;
         index = 0;
         result = 0;
+        seconds = 10;
 
         // Clear the previous quiz statistics
         number_right.setText("");
@@ -337,11 +417,12 @@ public class CompSci implements ActionListener {
         frame.remove(number_right);
 
         // Start a new quiz
+        loadQuestionsFromDatabase();
         nextQuestion();
     }
 
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(DiscreteMaths::new);
+        SwingUtilities.invokeLater(() -> new TimedQuiz());
     }
 }

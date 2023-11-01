@@ -1,4 +1,4 @@
-package Login;
+package src;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -61,7 +61,7 @@ public class LoginPage implements ActionListener {
                 messageLabel.setForeground(Color.green);
                 messageLabel.setText("Login successful!");
                 frame.dispose();
-                WelcomePage welcomePage = new WelcomePage(userID);
+                Welcome welcome = new Welcome();
             }
         }else{
             messageLabel.setForeground(Color.red);

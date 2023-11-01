@@ -1,7 +1,9 @@
+package src;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.Timer;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -9,18 +11,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Random;
 
-public class TimedQuiz implements ActionListener {
+public class RandomQuiz implements ActionListener {
 
     private String[] questions;
     private String[][] options;
     private char[] answers;
 
-    private char answer;
     private int index;
-    int correct_answers = 0;
-    private int total_questions;
+    private int correct_answers = 0;
+    private int total_questions = 18;
     private int result;
-    int seconds = 30;
+    private int seconds = 10;
+
+    private char[] userAnswers;
 
     private JFrame frame;
     private JTextField textfield;
@@ -37,34 +40,17 @@ public class TimedQuiz implements ActionListener {
     private JLabel answer_labelD;
     private JTextField number_right;
     private JTextField percentage;
-    private JLabel time_label = new JLabel();
-    private JLabel seconds_left = new JLabel();
-
-
 
     private Connection connection;
     private PreparedStatement statement;
     private ResultSet resultSet;
 
-    private int[] questionOrder;  // Store the order of questions
+    private int[] questionOrder;  // Store the order of question
     private int currentQuestionIndex;  // Keep track of the current question index
-
-    Timer timer = new Timer(1000, new ActionListener() {    //Sets 1 second timer
-        @Override
-        public void actionPerformed(ActionEvent e) { //After every second elapses the action is performe
-            seconds--;
-            seconds_left.setText(String.valueOf(seconds));
-            if (seconds <= 0) {
-                displayAnswer();
-            }
-        }
-    });
-
-
     private Statistics statistics;
 
-    public TimedQuiz() {
-        frame = new JFrame("TimedQuiz");
+    public RandomQuiz() {
+        frame = new JFrame("src.RandomQuiz");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(650, 650);
         frame.getContentPane().setBackground(new Color(99, 111, 237));
@@ -77,14 +63,14 @@ public class TimedQuiz implements ActionListener {
         buttonB = new JButton();
         buttonC = new JButton();
         buttonD = new JButton();
+        playAgain = new JButton();
+        backButton = new JButton();
         answer_labelA = new JLabel();
         answer_labelB = new JLabel();
         answer_labelC = new JLabel();
         answer_labelD = new JLabel();
         number_right = new JTextField();
         percentage = new JTextField();
-        playAgain = new JButton();
-        backButton = new JButton();
 
         // Initialize the database connection
         try {
@@ -106,7 +92,7 @@ public class TimedQuiz implements ActionListener {
         textfield.setBorder(BorderFactory.createBevelBorder(1));
         textfield.setHorizontalAlignment(JTextField.CENTER);
         textfield.setEditable(false);
-        textfield.setText("Welcome");
+        textfield.setText("src.Welcome");
 
         textarea.setBounds(0, 50, 650, 120);
         textarea.setLineWrap(true);
@@ -142,7 +128,6 @@ public class TimedQuiz implements ActionListener {
         buttonD.addActionListener(this);
         buttonD.setText("D");
 
-
         playAgain.setBounds(225, 425, 200, 50);
         playAgain.setFont(new Font("MV Boli", Font.BOLD, 20));
         playAgain.setFocusable(false);
@@ -153,6 +138,7 @@ public class TimedQuiz implements ActionListener {
                 resetQuiz();
             }
         });
+
         backButton.setBounds(225, 480, 200, 50);
         backButton.setBackground(new Color(217, 25, 25));
         backButton.setFont(new Font("MV Boli", Font.BOLD, 20));
@@ -162,12 +148,9 @@ public class TimedQuiz implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frame.dispose(); // Close the current quiz frame
-                new Welcome(); // Open the Welcome page
+                new Welcome(); // Open the src.Welcome page
             }
         });
-
-
-
 
         answer_labelA.setBounds(125, 175, 600, 100);
         answer_labelA.setBackground(new Color(99, 111, 237));
@@ -193,22 +176,6 @@ public class TimedQuiz implements ActionListener {
         answer_labelD.setFont(new Font("MV Boli", Font.PLAIN, 10));
         answer_labelD.setText("yes");
 
-        seconds_left.setBounds(535, 510, 100, 100);
-        seconds_left.setBackground(new Color(99, 111, 237));
-        seconds_left.setForeground(new Color(25, 25, 25));
-        seconds_left.setFont(new Font("Impact", Font.BOLD, 60));
-        seconds_left.setBorder(BorderFactory.createBevelBorder(2));
-        seconds_left.setOpaque(true);
-        seconds_left.setHorizontalAlignment(JTextField.CENTER);
-        seconds_left.setText(String.valueOf(seconds));
-
-        time_label.setBounds(535, 475, 100, 25);
-        time_label.setBackground(new Color(99, 111, 237));
-        time_label.setForeground(new Color(25, 25, 25));
-        time_label.setFont(new Font("MV Boli", Font.PLAIN, 20));
-        time_label.setHorizontalAlignment(JTextField.CENTER);
-        time_label.setText("Timer! 😈");
-
         number_right.setBounds(225, 225, 200, 100);
         number_right.setBackground(new Color(99, 111, 237));
         number_right.setForeground(new Color(25, 25, 25));
@@ -225,9 +192,6 @@ public class TimedQuiz implements ActionListener {
         percentage.setHorizontalAlignment(JTextField.CENTER);
         percentage.setEditable(false);
 
-
-        frame.add(time_label);
-        frame.add(seconds_left);
         frame.add(answer_labelA);
         frame.add(answer_labelB);
         frame.add(answer_labelC);
@@ -238,20 +202,32 @@ public class TimedQuiz implements ActionListener {
         frame.add(buttonD);
         frame.add(textarea);
         frame.add(textfield);
+
         frame.setVisible(true);
 
         questionOrder = new int[total_questions];
         for (int i = 0; i < total_questions; i++) {
             questionOrder[i] = i;
         }
+        shuffleQuestions();
+
         statistics = new Statistics();
-
-
-
         nextQuestion();
     }
 
+    private void shuffleQuestions() {
+        Random random = new Random();
+        for (int i = questionOrder.length - 1; i > 0; i--) {
+            int j = random.nextInt(i + 1);
+            int temp = questionOrder[i];
+            questionOrder[i] = questionOrder[j];
+            questionOrder[j] = temp;
 
+            char tempChar = answers[i];
+            answers[i] = answers[j];
+            answers[j] = tempChar;
+        }
+    }
 
     private void loadQuestionsFromDatabase() {
         questions = new String[18];
@@ -263,7 +239,7 @@ public class TimedQuiz implements ActionListener {
             resultSet = statement.executeQuery();
 
             int questionCount = 0;
-            while (resultSet.next() && questionCount <= 18) {
+            while (resultSet.next() && questionCount < 18) {
                 questions[questionCount] = resultSet.getString("question_text");
                 options[questionCount][0] = resultSet.getString("option_a");
                 options[questionCount][1] = resultSet.getString("option_b");
@@ -293,84 +269,32 @@ public class TimedQuiz implements ActionListener {
             answer_labelD.setText(options[currentQuestionID][3]);
 
             currentQuestionIndex++;
-            timer.start();
         }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (index < answers.length) {
+        if(index < answers.length) {
 
             JButton selectedButton = (JButton) e.getSource();
             char buttonText = selectedButton.getText().charAt(0);
 
-            // System.out.println(buttonText + " and correct ans: " + Character.toUpperCase((answers[index]))); Debugging check
+           // System.out.println(buttonText + " and correct ans: " + Character.toUpperCase((answers[index]))); Debugging check
 
-            if (buttonText == Character.toUpperCase((answers[index]))) {
+            if(buttonText == Character.toUpperCase((answers[index]))){
                 correct_answers++;
-                //  System.out.println("incremented");    Debugging
+              //  System.out.println("incremented");    Debugging
             }
-
-
-            if (currentQuestionIndex > total_questions) {
-                results();
-            } else {
-                displayAnswer();
-            }
+            index++;
+            nextQuestion();
         }
     }
 
 
 
 
-
-    public void displayAnswer() {
-
-        timer.stop();
-        buttonA.setEnabled(false);
-        buttonB.setEnabled(false);
-        buttonC.setEnabled(false);
-        buttonD.setEnabled(false);
-
-        if (answers[index] != 'a')
-            answer_labelA.setForeground(new Color(255, 0, 0));
-        if (answers[index] != 'b')
-            answer_labelB.setForeground(new Color(255, 0, 0));
-
-        if (answers[index] != 'c')
-            answer_labelC.setForeground(new Color(255, 0, 0));
-
-        if (answers[index] != 'd')
-            answer_labelD.setForeground(new Color(255, 0, 0));
-        //The answer label is set to red if the answer is incorrect
-
-        Timer pause = new Timer(1000, new ActionListener() {    //Sets 1 second timer
-            @Override
-            public void actionPerformed(ActionEvent e) { //After 1 seconds elapses colours change back to original
-                answer_labelA.setForeground(new Color(151, 255, 255));
-                answer_labelB.setForeground(new Color(151, 255, 255));
-                answer_labelC.setForeground(new Color(151, 255, 255));
-                answer_labelD.setForeground(new Color(151, 255, 255));
-
-                answer = ' ';
-                seconds = 10;
-                seconds_left.setText(String.valueOf(seconds));
-                buttonA.setEnabled(true);
-                buttonB.setEnabled(true);
-                buttonC.setEnabled(true);
-                buttonD.setEnabled(true);
-                index++;
-                nextQuestion();
-            }
-        });
-        pause.setRepeats(false);
-        pause.start();
-
-    }
-
-
-
     private void results() {
+        System.out.println("correct answers: " + correct_answers);
         result = (int) ((correct_answers / (double) total_questions) * 100);
         textfield.setText("Result!");
         textarea.setText("");
@@ -398,18 +322,19 @@ public class TimedQuiz implements ActionListener {
         frame.add(percentage);
         frame.add(number_right);
     }
+
     private void resetQuiz() {
         correct_answers = 0;
         currentQuestionIndex = 0;
         index = 0;
         result = 0;
-        seconds = 10;
+
 
         // Clear the previous quiz statistics
         number_right.setText("");
         percentage.setText("");
 
-        // Clear the "Play Again" button
+        // Clear the "Play Again" button, the "percentage" box and the "number right" box
         frame.remove(playAgain);
         frame.remove(backButton);
         frame.remove(percentage);
@@ -417,11 +342,12 @@ public class TimedQuiz implements ActionListener {
 
         // Start a new quiz
         loadQuestionsFromDatabase();
+        shuffleQuestions();
         nextQuestion();
     }
 
-
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TimedQuiz());
+        SwingUtilities.invokeLater(() -> new RandomQuiz());
+
     }
 }

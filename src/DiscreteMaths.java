@@ -1,25 +1,45 @@
+package src;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Random;
 
-public class RandomQuiz implements ActionListener {
+public class DiscreteMaths implements ActionListener {
 
-    private String[] questions;
-    private String[][] options;
-    private char[] answers;
-
+    String[] questions ={
+            "Consider the sets: A = {1,2,3,4,5} B = {3,4, 5,6,7}. Which of the following represents the intersection of A and B?",
+            "Given the function f(x) = 2x + 3, what is the value of f(4)?",
+            "Given the propositions: P: The sun is shining. Q: It's a warm day.R: The ice cream truck is here. Which of the following statements is equivalent to \"If the sun is shining, then it's a warm day?\"",
+            "Consider the propositions: A: The car is red.B: The car is expensive. C: The car is fast. Which of the following statements is equivalent to \"The car is either red and expensive or fast\"?",
+            "What is the result of multiplying a 3x2 matrix by a 2x4 matrix?",
+            "Given the propositions: P: The cake is chocolate.Q: The cake is delicious. R: The cake is moist. S: The cake is homemade. Which of the following expressions represents \"The cake is not chocolate, and it is delicious and moist, but not homemade\" in propositional logic?",
+    };
+    String[][] options ={
+            {"{1, 2}", "{3, 4, 5}", "{6, 7}", "{1, 5, 7}"},
+            {"8", "11", "19", "5"},
+            {"P ∧ Q", "P → Q", "Q → P", "L"},
+            {"A ∨ B", "(A ∧ B) ∨ C", "A ↔ (B ∨ C)", "m"},
+            {"It is not possible to multiply these matrices", "A 3x4 matrix", "A 2x2 matrix", "A 2x3 matrix"},
+            {"¬P ∧ (Q ∧ R) ∧ ¬S", "¬P ∧ (Q ∨ R) ∧ ¬S", "P ∨ (¬Q ∧ ¬R) ∧S", "¬P ∧ (Q ∧ R) ∧ S"}
+    };
+    char[] answers ={
+            'B',
+            'B',
+            'B',
+            'B',
+            'A',
+            'A'
+    };
+    private char guess;
+    private char answer;
     private int index;
-    private int correct_answers = 0;
-    private int total_questions = 18;
+    int correct_answers = 0;
+    private int total_questions;
     private int result;
-    private int seconds = 10;
 
     private char[] userAnswers;
 
@@ -43,12 +63,13 @@ public class RandomQuiz implements ActionListener {
     private PreparedStatement statement;
     private ResultSet resultSet;
 
-    private int[] questionOrder;  // Store the order of question
+    private int[] questionOrder;  // Store the order of questions
     private int currentQuestionIndex;  // Keep track of the current question index
+
     private Statistics statistics;
 
-    public RandomQuiz() {
-        frame = new JFrame("RandomQuiz");
+    public DiscreteMaths() {
+        frame = new JFrame("Discrete Maths Quiz");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(650, 650);
         frame.getContentPane().setBackground(new Color(99, 111, 237));
@@ -61,24 +82,18 @@ public class RandomQuiz implements ActionListener {
         buttonB = new JButton();
         buttonC = new JButton();
         buttonD = new JButton();
-        playAgain = new JButton();
-        backButton = new JButton();
         answer_labelA = new JLabel();
         answer_labelB = new JLabel();
         answer_labelC = new JLabel();
         answer_labelD = new JLabel();
         number_right = new JTextField();
         percentage = new JTextField();
+        playAgain = new JButton();
+        backButton = new JButton();
 
         // Initialize the database connection
-        try {
-            connection = DriverManager.getConnection("jdbc:sqlite:epicdatabase.db");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 
         // Load questions and answers from the database
-        loadQuestionsFromDatabase();
 
         total_questions = questions.length;
 
@@ -90,7 +105,7 @@ public class RandomQuiz implements ActionListener {
         textfield.setBorder(BorderFactory.createBevelBorder(1));
         textfield.setHorizontalAlignment(JTextField.CENTER);
         textfield.setEditable(false);
-        textfield.setText("Welcome");
+        textfield.setText("src.Welcome");
 
         textarea.setBounds(0, 50, 650, 120);
         textarea.setLineWrap(true);
@@ -126,6 +141,7 @@ public class RandomQuiz implements ActionListener {
         buttonD.addActionListener(this);
         buttonD.setText("D");
 
+
         playAgain.setBounds(225, 425, 200, 50);
         playAgain.setFont(new Font("MV Boli", Font.BOLD, 20));
         playAgain.setFocusable(false);
@@ -136,7 +152,6 @@ public class RandomQuiz implements ActionListener {
                 resetQuiz();
             }
         });
-
         backButton.setBounds(225, 480, 200, 50);
         backButton.setBackground(new Color(217, 25, 25));
         backButton.setFont(new Font("MV Boli", Font.BOLD, 20));
@@ -146,9 +161,12 @@ public class RandomQuiz implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frame.dispose(); // Close the current quiz frame
-                new Welcome(); // Open the Welcome page
+                new Welcome(); // Open the src.Welcome page
             }
         });
+
+
+
 
         answer_labelA.setBounds(125, 175, 600, 100);
         answer_labelA.setBackground(new Color(99, 111, 237));
@@ -200,59 +218,28 @@ public class RandomQuiz implements ActionListener {
         frame.add(buttonD);
         frame.add(textarea);
         frame.add(textfield);
-
         frame.setVisible(true);
 
         questionOrder = new int[total_questions];
         for (int i = 0; i < total_questions; i++) {
             questionOrder[i] = i;
         }
-        shuffleQuestions();
-
         statistics = new Statistics();
+
+
+
         nextQuestion();
     }
 
-    private void shuffleQuestions() {
-        Random random = new Random();
-        for (int i = questionOrder.length - 1; i > 0; i--) {
-            int j = random.nextInt(i + 1);
-            int temp = questionOrder[i];
-            questionOrder[i] = questionOrder[j];
-            questionOrder[j] = temp;
-
-            char tempChar = answers[i];
-            answers[i] = answers[j];
-            answers[j] = tempChar;
-        }
+    private void printStackTrace() {
     }
 
-    private void loadQuestionsFromDatabase() {
-        questions = new String[18];
-        options = new String[18][4];
-        answers = new char[18];
-        try {
-            String query = "SELECT question_text, option_a, option_b, option_c, option_d, correct_option FROM MultipleChoiceQandA";
-            statement = connection.prepareStatement(query);
-            resultSet = statement.executeQuery();
-
-            int questionCount = 0;
-            while (resultSet.next() && questionCount < 18) {
-                questions[questionCount] = resultSet.getString("question_text");
-                options[questionCount][0] = resultSet.getString("option_a");
-                options[questionCount][1] = resultSet.getString("option_b");
-                options[questionCount][2] = resultSet.getString("option_c");
-                options[questionCount][3] = resultSet.getString("option_d");
-                answers[questionCount] = resultSet.getString("correct_option").charAt(1);
-
-                questionCount++;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 
     private void nextQuestion() {
+        buttonA.setEnabled(true);
+        buttonB.setEnabled(true);
+        buttonC.setEnabled(true);
+        buttonD.setEnabled(true);
         if (currentQuestionIndex >= total_questions) {
             results();
         } else {
@@ -267,32 +254,43 @@ public class RandomQuiz implements ActionListener {
             answer_labelD.setText(options[currentQuestionID][3]);
 
             currentQuestionIndex++;
+
         }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(index < answers.length) {
-
-            JButton selectedButton = (JButton) e.getSource();
-            char buttonText = selectedButton.getText().charAt(0);
-
-           // System.out.println(buttonText + " and correct ans: " + Character.toUpperCase((answers[index]))); Debugging check
-
-            if(buttonText == Character.toUpperCase((answers[index]))){
+        buttonA.setEnabled(false);
+        buttonB.setEnabled(false);
+        buttonC.setEnabled(false);
+        buttonD.setEnabled(false);
+        if (e.getSource()==buttonA){
+            answer='A';
+            if (answer==answers[index]){
                 correct_answers++;
-              //  System.out.println("incremented");    Debugging
             }
-            index++;
-            nextQuestion();
         }
+        if (e.getSource()==buttonB){
+            answer='B';
+            if (answer==answers[index]){
+                correct_answers++;
+            }
+        }
+        if (e.getSource()==buttonC){
+            answer='C';
+            if (answer==answers[index]){
+                correct_answers++;
+            }
+        }
+        if (e.getSource()==buttonD){
+            answer='D';
+            if (answer==answers[index]){
+                correct_answers++;
+            }
+        }nextQuestion();
     }
 
-
-
-
     private void results() {
-        System.out.println("correct answers: " + correct_answers);
         result = (int) ((correct_answers / (double) total_questions) * 100);
         textfield.setText("Result!");
         textarea.setText("");
@@ -320,32 +318,28 @@ public class RandomQuiz implements ActionListener {
         frame.add(percentage);
         frame.add(number_right);
     }
-
     private void resetQuiz() {
         correct_answers = 0;
         currentQuestionIndex = 0;
         index = 0;
         result = 0;
 
-
         // Clear the previous quiz statistics
         number_right.setText("");
         percentage.setText("");
 
-        // Clear the "Play Again" button, the "percentage" box and the "number right" box
+        // Clear the "Play Again" button
         frame.remove(playAgain);
         frame.remove(backButton);
         frame.remove(percentage);
         frame.remove(number_right);
 
         // Start a new quiz
-        loadQuestionsFromDatabase();
-        shuffleQuestions();
         nextQuestion();
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new RandomQuiz());
 
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(DiscreteMaths::new);
     }
 }

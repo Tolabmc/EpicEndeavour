@@ -1,7 +1,6 @@
-import DifficultyQuiz.CompOrg;
-import DifficultyQuiz.CompSci;
-import DifficultyQuiz.DiscreteMaths;
-import DifficultyQuiz.RandomQuiz;
+package src;
+
+
 
 import javax.swing.*;
 import java.awt.*;

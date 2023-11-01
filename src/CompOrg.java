@@ -1,4 +1,4 @@
-package DifficultyQuiz;
+package src;
 
 import javax.swing.*;
 import java.awt.*;
@@ -107,7 +107,7 @@ public class CompOrg implements ActionListener {
         textfield.setBorder(BorderFactory.createBevelBorder(1));
         textfield.setHorizontalAlignment(JTextField.CENTER);
         textfield.setEditable(false);
-        textfield.setText("Welcome");
+        textfield.setText("src.Welcome");
 
         textarea.setBounds(0, 50, 650, 120);
         textarea.setLineWrap(true);
@@ -163,7 +163,7 @@ public class CompOrg implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frame.dispose(); // Close the current quiz frame
-                new Welcome(); // Open the Welcome page
+                new Welcome(); // Open the src.Welcome page
             }
         });
 

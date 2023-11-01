@@ -1,3 +1,5 @@
+package src;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -7,7 +9,7 @@ import java.awt.event.ActionListener;
         private JTextField textfield;
         public Welcome() {
             // Create a JFrame for the welcome page
-            JFrame frame = new JFrame("Welcome to the Game Center");
+            JFrame frame = new JFrame("src.Welcome to the Game Center");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setSize(650, 650);
             frame.getContentPane().setBackground(new Color(99, 111, 237));
@@ -38,7 +40,7 @@ import java.awt.event.ActionListener;
 
             // Create buttons for different games
             JButton randomGameButton = createGameButton("Random", "RandomQuiz.java", frame);
-            JButton increasingDifficultyButton = createGameButton("Increasing Difficulty", "IncreasingDifficulty.java", frame);
+            JButton increasingDifficultyButton = createGameButton("Increasing Difficulty", "src.IncreasingDifficulty.java", frame);
             JButton timedQuizButton = createGameButton("Timed", "TimedQuiz.java", frame);
 
             // Position the buttons
@@ -71,7 +73,7 @@ import java.awt.event.ActionListener;
                         RandomQuiz randomQuiz = new RandomQuiz();
                     }
                     if(buttonText == "Increasing Difficulty"){
-                       IncreasingDifficulty increasingDifficulty = new IncreasingDifficulty;
+                       IncreasingDifficulty increasingDifficulty = new IncreasingDifficulty();
                     }
 
                     if(buttonText == "Timed"){

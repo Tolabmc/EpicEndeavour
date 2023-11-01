@@ -1,4 +1,4 @@
-package DifficultyQuiz;
+package src;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,31 +10,31 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class DiscreteMaths implements ActionListener {
+public class CompSci implements ActionListener {
 
     String[] questions ={
-            "Consider the sets: A = {1,2,3,4,5} B = {3,4, 5,6,7}. Which of the following represents the intersection of A and B?",
-            "Given the function f(x) = 2x + 3, what is the value of f(4)?",
-            "Given the propositions: P: The sun is shining. Q: It's a warm day.R: The ice cream truck is here. Which of the following statements is equivalent to \"If the sun is shining, then it's a warm day?\"",
-            "Consider the propositions: A: The car is red.B: The car is expensive. C: The car is fast. Which of the following statements is equivalent to \"The car is either red and expensive or fast\"?",
-            "What is the result of multiplying a 3x2 matrix by a 2x4 matrix?",
-            "Given the propositions: P: The cake is chocolate.Q: The cake is delicious. R: The cake is moist. S: The cake is homemade. Which of the following expressions represents \"The cake is not chocolate, and it is delicious and moist, but not homemade\" in propositional logic?",
-    };
+            "In Backus-Naur Form (BNF), what does the '|' symbol represent?",
+            "What is the purpose of Backus-Naur Form (BNF) in computer science?",
+            "Which of the following statements is true regarding semantic and syntactic equivalence in programming languages?",
+            "In computer science, when are two mathematical equations considered semantically equivalent?",
+            "In lattice theory, what is the infimum (infima) and supremum (suprema) of two elements a and b in a lattice?",
+            "In Binary Decision Diagrams (BDDs), what is the primary purpose of variable reordering?"
+            };
     String[][] options ={
-            {"{1, 2}", "{3, 4, 5}", "{6, 7}", "{1, 5, 7}"},
-            {"8", "11", "19", "5"},
-            {"P ∧ Q", "P → Q", "Q → P", "L"},
-            {"A ∨ B", "(A ∧ B) ∨ C", "A ↔ (B ∨ C)", "m"},
-            {"It is not possible to multiply these matrices", "A 3x4 matrix", "A 2x2 matrix", "A 2x3 matrix"},
-            {"¬P ∧ (Q ∧ R) ∧ ¬S", "¬P ∧ (Q ∨ R) ∧ ¬S", "P ∨ (¬Q ∧ ¬R) ∧S", "¬P ∧ (Q ∧ R) ∧ S"}
+            {"Alternation", "Concatenation", "Repetition", "Addition"},
+            {"To describe the meaning of programming language keywords", "To specify the layout and design of a user interface", "To optimize the execution speed of computer programs", "To formally define the syntax of programming languages"},
+            {"Semantic equivalence ensures that two programs have the same runtime behaviour", "Syntactic equivalence is concerned with the arrangement of code elements, while semantic equivalence is about variable naming", "Semantic equivalence can be determined by comparing the program's source code directly", "Syntactic equivalence is concerned with the execution speed of the program, while semantic equivalence is about code comments"},
+            {"When they have the same variables but different constants", "When they produce the same result for all possible input values", "When they have the same structure but different variable names", "When they have the same variables but different operators"},
+            {"The infimum is the greatest lower bound, and the supremum is the least upper bound of a and b", "The infimum is the least lower bound, and the supremum is the greatest upper bound of a and b", "The infimum is the greatest lower bound of a and b, and the supremum is the greatest upper bound of a and b", "The infimum is the least lower bound of a and b, and the supremum is the least upper bound of a and b"},
+            {"To increase the depth of the BDD for better visualization", "To eliminate redundancy in the representation of Boolean functions", "To minimize the number of nodes in the BDD", "To reorder the variables alphabetically for clarity"}
     };
     char[] answers ={
-            'B',
-            'B',
-            'B',
+            'A',
+            'D',
+            'A',
             'B',
             'A',
-            'A'
+            'C'
     };
     private char guess;
     private char answer;
@@ -70,7 +70,7 @@ public class DiscreteMaths implements ActionListener {
 
     private Statistics statistics;
 
-    public DiscreteMaths() {
+    public CompSci() {
         frame = new JFrame("Discrete Maths Quiz");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(650, 650);
@@ -107,7 +107,7 @@ public class DiscreteMaths implements ActionListener {
         textfield.setBorder(BorderFactory.createBevelBorder(1));
         textfield.setHorizontalAlignment(JTextField.CENTER);
         textfield.setEditable(false);
-        textfield.setText("Welcome");
+        textfield.setText("src.Welcome");
 
         textarea.setBounds(0, 50, 650, 120);
         textarea.setLineWrap(true);
@@ -163,7 +163,7 @@ public class DiscreteMaths implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frame.dispose(); // Close the current quiz frame
-                new Welcome(); // Open the Welcome page
+                new Welcome(); // Open the src.Welcome page
             }
         });
 
