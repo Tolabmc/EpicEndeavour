@@ -32,6 +32,7 @@ public class TimedQuiz implements ActionListener {
     private JButton buttonC;
     private JButton buttonD;
     private JButton playAgain;
+    private JButton backButton;
     private JLabel answer_labelA;
     private JLabel answer_labelB;
     private JLabel answer_labelC;
@@ -85,6 +86,7 @@ public class TimedQuiz implements ActionListener {
         number_right = new JTextField();
         percentage = new JTextField();
         playAgain = new JButton();
+        backButton = new JButton();
 
         // Initialize the database connection
         try {
@@ -151,6 +153,18 @@ public class TimedQuiz implements ActionListener {
             public void actionPerformed(ActionEvent e) {
                 // Reset the quiz and start a new one
                 resetQuiz();
+            }
+        });
+        backButton.setBounds(225, 480, 200, 50);
+        backButton.setBackground(new Color(217, 25, 25));
+        backButton.setFont(new Font("MV Boli", Font.BOLD, 20));
+        backButton.setFocusable(false);
+        backButton.setText("Back to Home");
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose(); // Close the current quiz frame
+                new Welcome(); // Open the Welcome page
             }
         });
 
@@ -372,6 +386,7 @@ public class TimedQuiz implements ActionListener {
         frame.add(percentage);
         frame.add(number_right);
         frame.add(playAgain);
+        frame.add(backButton);
 
         int score = (int) ((correct_answers / (double) total_questions) * 100);
         statistics.addQuizScore(score);
@@ -398,6 +413,7 @@ public class TimedQuiz implements ActionListener {
 
         // Clear the "Play Again" button
         frame.remove(playAgain);
+        frame.remove(backButton);
         frame.remove(percentage);
         frame.remove(number_right);
 

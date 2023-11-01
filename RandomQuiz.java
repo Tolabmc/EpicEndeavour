@@ -31,6 +31,8 @@ public class RandomQuiz implements ActionListener {
     private JButton buttonB;
     private JButton buttonC;
     private JButton buttonD;
+    private JButton playAgain;
+    private JButton backButton;
     private JLabel answer_labelA;
     private JLabel answer_labelB;
     private JLabel answer_labelC;
@@ -46,6 +48,7 @@ public class RandomQuiz implements ActionListener {
 
     private int[] questionOrder;  // Store the order of question
     private int currentQuestionIndex;  // Keep track of the current question index
+    private Statistics statistics;
 
     public RandomQuiz() {
         frame = new JFrame("RandomQuiz");
@@ -61,6 +64,8 @@ public class RandomQuiz implements ActionListener {
         buttonB = new JButton();
         buttonC = new JButton();
         buttonD = new JButton();
+        playAgain = new JButton();
+        backButton = new JButton();
         answer_labelA = new JLabel();
         answer_labelB = new JLabel();
         answer_labelC = new JLabel();
@@ -124,6 +129,30 @@ public class RandomQuiz implements ActionListener {
         buttonD.addActionListener(this);
         buttonD.setText("D");
 
+        playAgain.setBounds(225, 425, 200, 50);
+        playAgain.setFont(new Font("MV Boli", Font.BOLD, 20));
+        playAgain.setFocusable(false);
+        playAgain.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Reset the quiz and start a new one
+                resetQuiz();
+            }
+        });
+
+        backButton.setBounds(225, 480, 200, 50);
+        backButton.setBackground(new Color(217, 25, 25));
+        backButton.setFont(new Font("MV Boli", Font.BOLD, 20));
+        backButton.setFocusable(false);
+        backButton.setText("Back to Home");
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose(); // Close the current quiz frame
+                new Welcome(); // Open the Welcome page
+            }
+        });
+
         answer_labelA.setBounds(125, 175, 600, 100);
         answer_labelA.setBackground(new Color(99, 111, 237));
         answer_labelA.setForeground(new Color(151, 255, 255));
@@ -174,6 +203,7 @@ public class RandomQuiz implements ActionListener {
         frame.add(buttonD);
         frame.add(textarea);
         frame.add(textfield);
+
         frame.setVisible(true);
 
         questionOrder = new int[total_questions];
@@ -182,7 +212,7 @@ public class RandomQuiz implements ActionListener {
         }
         shuffleQuestions();
 
-
+        statistics = new Statistics();
         nextQuestion();
     }
 
@@ -275,8 +305,46 @@ public class RandomQuiz implements ActionListener {
         answer_labelD.setText(" ");
         number_right.setText("[" + correct_answers + "/" + total_questions + "]");
         percentage.setText(result + "%");
+        playAgain.setText("Play Again!");
         frame.add(percentage);
         frame.add(number_right);
+        frame.add(playAgain);
+        frame.add(backButton);
+
+        int score = (int) ((correct_answers / (double) total_questions) * 100);
+        statistics.addQuizScore(score);
+
+        // Display user statistics
+        textfield.setText("Result!");
+        textarea.setText("Your Score: " + score + "%\n");
+        textarea.append("Mean Score: " + statistics.getMeanScore() + "%\n");
+        textarea.append("Median Score: " + statistics.getMedianScore() + "%\n");
+        textarea.append("Standard Deviation: " + statistics.getStandardDeviation() + "\n");
+        frame.add(percentage);
+        frame.add(number_right);
+    }
+
+    private void resetQuiz() {
+        correct_answers = 0;
+        currentQuestionIndex = 0;
+        index = 0;
+        result = 0;
+
+
+        // Clear the previous quiz statistics
+        number_right.setText("");
+        percentage.setText("");
+
+        // Clear the "Play Again" button, the "percentage" box and the "number right" box
+        frame.remove(playAgain);
+        frame.remove(backButton);
+        frame.remove(percentage);
+        frame.remove(number_right);
+
+        // Start a new quiz
+        loadQuestionsFromDatabase();
+        shuffleQuestions();
+        nextQuestion();
     }
 
     public static void main(String[] args) {
