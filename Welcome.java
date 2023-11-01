@@ -14,17 +14,7 @@ import java.awt.event.ActionListener;
             frame.setLayout(null);
             frame.setResizable(false);
 
-            // Create a title label
-          /*  JLabel titleLabel = new JLabel("Welcome");
-            titleLabel.setBounds(0, 50, 650, 50);
-            titleLabel.setBackground(new Color(217, 25, 25));
-            titleLabel.setForeground(new Color(151, 255, 255));
-            titleLabel.setFont(new Font("Impact", Font.BOLD, 30));
-            titleLabel.setBorder(BorderFactory.createBevelBorder(1));
-            titleLabel.setHorizontalAlignment(JLabel.CENTER);
-            frame.add(titleLabel);
 
-           */
             textfield = new JTextField();
             textfield.setBounds(0, 0, 650, 100);
             textfield.setBackground(new Color(217, 25, 25));
@@ -80,10 +70,10 @@ import java.awt.event.ActionListener;
                     if(buttonText == "Random"){
                         RandomQuiz randomQuiz = new RandomQuiz();
                     }
-                   /* if(buttonText == "Increasing Difficulty"){
+                    if(buttonText == "Increasing Difficulty"){
                        IncreasingDifficulty increasingDifficulty = new IncreasingDifficulty;
                     }
-                   */
+
                     if(buttonText == "Timed"){
                         TimedQuiz timedQuiz = new TimedQuiz();
                     }
