@@ -14,15 +14,13 @@ public class TimedQuiz implements ActionListener {
     private String[] questions;
     private String[][] options;
     private char[] answers;
-    private char guess;
+
     private char answer;
     private int index;
     int correct_answers = 0;
     private int total_questions;
     private int result;
     int seconds = 30;
-
-    private char[] userAnswers;
 
     private JFrame frame;
     private JTextField textfield;
