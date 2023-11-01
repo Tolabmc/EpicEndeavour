@@ -256,35 +256,6 @@ public class RandomQuiz implements ActionListener {
                 correct_answers++;
               //  System.out.println("incremented");    Debugging
             }
-
-//            if (e.getSource() == buttonA) {
-//                answer = 'A';
-//                if (Character.toUpperCase(answer) == Character.toUpperCase((answers[index])) ) {
-//
-//                    correct_answers++;
-//                }
-//            }
-//            if (e.getSource() == buttonB) {
-//                answer = 'B';
-//                if (Character.toUpperCase(answer) == Character.toUpperCase((answers[index]))) {
-//
-//                    correct_answers++;
-//                }
-//            }
-//            if (e.getSource() == buttonC) {
-//                answer = 'C';
-//                if (Character.toUpperCase(answer) == Character.toUpperCase((answers[index]))) {
-//
-//                    correct_answers++;
-//                }
-//            }
-//            if (e.getSource() == buttonD) {
-//                answer = 'D';
-//                if (Character.toUpperCase(answer) == Character.toUpperCase((answers[index]))) {
-//
-//                    correct_answers++;
-//                }
-//            }
             index++;
             nextQuestion();
         }

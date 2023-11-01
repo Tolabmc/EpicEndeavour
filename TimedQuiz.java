@@ -31,6 +31,7 @@ public class TimedQuiz implements ActionListener {
     private JButton buttonB;
     private JButton buttonC;
     private JButton buttonD;
+    private JButton playAgain;
     private JLabel answer_labelA;
     private JLabel answer_labelB;
     private JLabel answer_labelC;
@@ -39,6 +40,7 @@ public class TimedQuiz implements ActionListener {
     private JTextField percentage;
     private JLabel time_label = new JLabel();
     private JLabel seconds_left = new JLabel();
+
 
 
     private Connection connection;
@@ -58,6 +60,9 @@ public class TimedQuiz implements ActionListener {
             }
         }
     });
+
+
+    private Statistics statistics;
 
     public TimedQuiz() {
         frame = new JFrame("TimedQuiz");
@@ -79,6 +84,7 @@ public class TimedQuiz implements ActionListener {
         answer_labelD = new JLabel();
         number_right = new JTextField();
         percentage = new JTextField();
+        playAgain = new JButton();
 
         // Initialize the database connection
         try {
@@ -135,6 +141,21 @@ public class TimedQuiz implements ActionListener {
         buttonD.setFocusable(false);
         buttonD.addActionListener(this);
         buttonD.setText("D");
+
+
+        playAgain.setBounds(225, 425, 200, 50);
+        playAgain.setFont(new Font("MV Boli", Font.BOLD, 20));
+        playAgain.setFocusable(false);
+        playAgain.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Reset the quiz and start a new one
+                resetQuiz();
+            }
+        });
+
+
+
 
         answer_labelA.setBounds(125, 175, 600, 100);
         answer_labelA.setBackground(new Color(99, 111, 237));
@@ -211,6 +232,7 @@ public class TimedQuiz implements ActionListener {
         for (int i = 0; i < total_questions; i++) {
             questionOrder[i] = i;
         }
+        statistics = new Statistics();
 
 
 
@@ -310,9 +332,9 @@ public class TimedQuiz implements ActionListener {
             answer_labelD.setForeground(new Color(255, 0, 0));
         //The answer label is set to red if the answer is incorrect
 
-        Timer pause = new Timer(1000, new ActionListener() {    //Sets 2 second timer
+        Timer pause = new Timer(1000, new ActionListener() {    //Sets 1 second timer
             @Override
-            public void actionPerformed(ActionEvent e) { //After 2 seconds elapses colours change back to original
+            public void actionPerformed(ActionEvent e) { //After 1 seconds elapses colours change back to original
                 answer_labelA.setForeground(new Color(151, 255, 255));
                 answer_labelB.setForeground(new Color(151, 255, 255));
                 answer_labelC.setForeground(new Color(151, 255, 255));
@@ -346,9 +368,44 @@ public class TimedQuiz implements ActionListener {
         answer_labelD.setText(" ");
         number_right.setText("[" + correct_answers + "/" + total_questions + "]");
         percentage.setText(result + "%");
+        playAgain.setText("Play Again!");
+        frame.add(percentage);
+        frame.add(number_right);
+        frame.add(playAgain);
+
+        int score = (int) ((correct_answers / (double) total_questions) * 100);
+        statistics.addQuizScore(score);
+
+        // Display user statistics
+        textfield.setText("Result!");
+        textarea.setText("Your Score: " + score + "%\n");
+        textarea.append("Mean Score: " + statistics.getMeanScore() + "%\n");
+        textarea.append("Median Score: " + statistics.getMedianScore() + "%\n");
+        textarea.append("Standard Deviation: " + statistics.getStandardDeviation() + "\n");
         frame.add(percentage);
         frame.add(number_right);
     }
+    private void resetQuiz() {
+        correct_answers = 0;
+        currentQuestionIndex = 0;
+        index = 0;
+        result = 0;
+        seconds = 10;
+
+        // Clear the previous quiz statistics
+        number_right.setText("");
+        percentage.setText("");
+
+        // Clear the "Play Again" button
+        frame.remove(playAgain);
+        frame.remove(percentage);
+        frame.remove(number_right);
+
+        // Start a new quiz
+        loadQuestionsFromDatabase();
+        nextQuestion();
+    }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new TimedQuiz());
