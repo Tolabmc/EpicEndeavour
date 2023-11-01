@@ -15,7 +15,6 @@ public class RandomQuiz implements ActionListener {
     private String[][] options;
     private char[] answers;
 
-    private char answer;
     private int index;
     private int correct_answers = 0;
     private int total_questions = 18;
@@ -39,8 +38,6 @@ public class RandomQuiz implements ActionListener {
     private JLabel answer_labelD;
     private JTextField number_right;
     private JTextField percentage;
-
-    private Timer timer;
 
     private Connection connection;
     private PreparedStatement statement;
