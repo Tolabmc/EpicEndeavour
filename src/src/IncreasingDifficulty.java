@@ -72,7 +72,7 @@ public class IncreasingDifficulty {
                 JButton selectedButton = (JButton) e.getSource();
                 String buttonText = selectedButton.getText();
                 if(buttonText == "Discrete Mathematics"){
-                    DiscreteMaths discreteMaths = new DiscreteMaths();
+                    //DiscreteMaths discreteMaths = new DiscreteMaths();
                 }
                     if(buttonText == "Computer Organisation"){
                        CompOrg compOrg = new CompOrg();

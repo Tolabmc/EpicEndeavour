@@ -89,11 +89,14 @@ public class TimedQuiz implements ActionListener {
 
         // Initialize the database connection
         try {
+            Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:epicdatabase.db");
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
+        catch(ClassNotFoundException e){
+            e.printStackTrace();
+        }
         // Load questions and answers from the database
         loadQuestionsFromDatabase();
 
